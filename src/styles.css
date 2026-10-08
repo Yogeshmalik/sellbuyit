@@ -377,3 +377,46 @@ footer svg .fill {
     right: 0;
   }
 }
+
+.field.has-error input,
+.field.has-error select {
+  border-color: #ef4444;
+}
+.field.has-error input:focus,
+.field.has-error select:focus {
+  outline-color: #ef4444;
+}
+.field-error {
+  color: #fca5a5 !important;
+  font-size: 0.74rem !important;
+  line-height: 1.35;
+}
+.error {
+  border: 1px solid #7f2935;
+  border-radius: 5px;
+  margin: 16px 0 0;
+}
+.target-settings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+button:disabled:hover {
+  background: #2d92b8;
+}
+.page-guide strong {
+  color: #f3f4f6;
+}
+.page-guide p {
+  margin: 8px 0 0;
+}
+@media (max-width: 460px) {
+  .target-settings {
+    grid-template-columns: 1fr;
+  }
+}

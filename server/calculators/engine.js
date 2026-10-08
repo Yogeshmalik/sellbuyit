@@ -7,13 +7,17 @@ import { brokerById } from "../brokers/brokerRules.js";
 const decimalSum = (values) =>
   values.reduce((sum, item) => sum.plus(item), zero());
 const money = (value) => rupee(value).toFixed(2);
+const MAX_SOLVER_PRICE = D("10000000");
+const MAX_EXPANSIONS = 80;
+const MAX_ITERATIONS = 70;
 
 function groups(input) {
-  if (input.holdingType === "mixed")
+  if (input.holdingType === "mixed") {
     return [
       { type: "short", quantity: D(input.shortQuantity) },
       { type: "long", quantity: D(input.longQuantity) },
     ];
+  }
   return [{ type: input.holdingType, quantity: D(input.quantity) }];
 }
 
@@ -27,9 +31,17 @@ function taxForGroups({
   annualTaxableIncome,
 }) {
   const totalQuantity = decimalSum(holdingGroups.map((g) => g.quantity));
+  if (totalQuantity.lte(0)) {
+    throw new Error("Enter at least one share.");
+  }
+
+  // STT is specifically excluded from capital-gain deductions. The remaining
+  // configured acquisition/transfer expenses are treated as deductible costs
+  // for this transaction-level estimate.
   const deductible = charges
     .filter((item) => !item.name.startsWith("STT"))
     .reduce((sum, item) => sum.plus(item.amount), zero());
+
   const data = holdingGroups.map((group) => {
     const share = group.quantity.div(totalQuantity);
     const buyValue = group.quantity.times(buyPrice);
@@ -38,6 +50,7 @@ function taxForGroups({
     const gain = sellValue.minus(buyValue).minus(allocatedCharges);
     return { ...group, buyValue, sellValue, charges: allocatedCharges, gain };
   });
+
   const shortGain = decimalSum(
     data.filter((x) => x.type === "short").map((x) => x.gain),
   );
@@ -63,6 +76,7 @@ function taxForGroups({
     ? incomeTax.times(surchargeRule.rate)
     : zero();
   const cess = incomeTax.plus(surcharge).times(market.cessRate);
+
   return {
     groups: data,
     shortGain,
@@ -80,12 +94,23 @@ function taxForGroups({
 }
 
 export function calculateSale(input) {
+  if (!input.buyPrice) {
+    throw new Error("Enter your average buy price.");
+  }
+  if (!input.sellPrice) {
+    throw new Error("Enter the selling price.");
+  }
+
   const market = ruleForDate(input.transactionDate);
   const broker = brokerById(input.broker);
   const buyPrice = D(input.buyPrice);
   const sellPrice = D(input.sellPrice);
   const holdingGroups = groups(input);
   const quantity = decimalSum(holdingGroups.map((g) => g.quantity));
+  if (quantity.lte(0)) {
+    throw new Error("Enter at least one share.");
+  }
+
   const buyValue = quantity.times(buyPrice);
   const sellValue = quantity.times(sellPrice);
   const charges = calculateCharges({
@@ -109,17 +134,18 @@ export function calculateSale(input) {
     ltcgUsed: D(input.ltcgUsed || 0),
     annualTaxableIncome: input.annualTaxableIncome,
   });
-  const netProfit = sellValue
-    .minus(buyValue)
-    .minus(chargeTotal)
-    .minus(tax.totalTax);
+
+  const grossProfit = sellValue.minus(buyValue);
+  const profitBeforeTax = grossProfit.minus(chargeTotal);
+  const netProfit = profitBeforeTax.minus(tax.totalTax);
   const netSaleProceeds = sellValue
     .minus(
       charges
-        .filter((row) => row.side !== "buy")
-        .reduce((sum, row) => sum.plus(row.amount), zero()),
+        .filter((charge) => charge.side !== "buy")
+        .reduce((sum, charge) => sum.plus(charge.amount), zero()),
     )
     .minus(tax.totalTax);
+
   return {
     transaction: {
       ...input,
@@ -132,7 +158,8 @@ export function calculateSale(input) {
     values: {
       buyValue: money(buyValue),
       sellValue: money(sellValue),
-      grossProfit: money(sellValue.minus(buyValue)),
+      grossProfit: money(grossProfit),
+      profitBeforeTax: money(profitBeforeTax),
     },
     charges: { items: charges, total: money(chargeTotal) },
     tax: {
@@ -167,10 +194,38 @@ export function calculateSale(input) {
 }
 
 export function solvePrice(input, targetProfit, direction) {
+  if (
+    targetProfit === undefined ||
+    targetProfit === null ||
+    targetProfit === ""
+  ) {
+    throw new Error("Enter the profit target you want to achieve.");
+  }
   const target = D(targetProfit);
+  if (!target.isFinite() || target.lt(0)) {
+    throw new Error(
+      "Enter a valid profit target greater than or equal to zero.",
+    );
+  }
+  if (direction !== "sell" && direction !== "buy") {
+    throw new Error("This price calculation is not supported.");
+  }
+
   const fixed = D(direction === "sell" ? input.buyPrice : input.sellPrice);
-  let low = D("0.01");
-  let high = direction === "sell" ? fixed.times(3).plus(100) : fixed;
+  if (!fixed.isFinite() || fixed.lte(0)) {
+    throw new Error(
+      direction === "sell"
+        ? "Enter your average buy price before calculating a target selling price."
+        : "Enter the expected selling price before calculating a target buying price.",
+    );
+  }
+
+  const low = D("0.01");
+  let high =
+    direction === "sell"
+      ? Decimal.max(fixed.times(3).plus(100), D("1"))
+      : fixed;
+
   const evaluate = (price) =>
     D(
       calculateSale({
@@ -178,21 +233,44 @@ export function solvePrice(input, targetProfit, direction) {
         [direction === "sell" ? "sellPrice" : "buyPrice"]: price.toFixed(4),
       }).result.netProfit,
     );
-  if (direction === "sell")
-    while (evaluate(high).lt(target)) high = high.times(2);
-  for (let i = 0; i < 70; i += 1) {
-    const mid = low.plus(high).div(2);
+
+  if (direction === "sell") {
+    let expansions = 0;
+    while (evaluate(high).lt(target)) {
+      if (expansions >= MAX_EXPANSIONS || high.gte(MAX_SOLVER_PRICE)) {
+        throw new Error(
+          "This profit target cannot be reached within the supported price range. Try a lower target or check your trade details.",
+        );
+      }
+      high = Decimal.min(high.times(2), MAX_SOLVER_PRICE);
+      expansions += 1;
+    }
+  } else if (evaluate(low).lt(target)) {
+    throw new Error(
+      "This profit target cannot be reached even at the lowest supported buying price. Try a lower target or a higher expected selling price.",
+    );
+  }
+
+  let left = low;
+  let right = high;
+  for (let i = 0; i < MAX_ITERATIONS; i += 1) {
+    const mid = left.plus(right).div(2);
     const value = evaluate(mid);
     if (value.gte(target)) {
-      if (direction === "sell") high = mid;
-      else low = mid;
-    } else if (direction === "sell") low = mid;
-    else high = mid;
+      if (direction === "sell") right = mid;
+      else left = mid;
+    } else if (direction === "sell") {
+      left = mid;
+    } else {
+      right = mid;
+    }
   }
+
   const price =
     direction === "sell"
-      ? high.toDecimalPlaces(2, 2)
-      : low.toDecimalPlaces(2, 1);
+      ? right.toDecimalPlaces(2, Decimal.ROUND_CEIL)
+      : left.toDecimalPlaces(2, Decimal.ROUND_FLOOR);
+
   return {
     price: price.toFixed(2),
     calculation: calculateSale({
@@ -203,18 +281,46 @@ export function solvePrice(input, targetProfit, direction) {
 }
 
 export function solveMaximumBuyForReturn(input, targetPercent) {
+  if (
+    targetPercent === undefined ||
+    targetPercent === null ||
+    targetPercent === ""
+  ) {
+    throw new Error("Enter the target net profit percentage you require.");
+  }
+  const target = D(targetPercent);
+  if (!target.isFinite() || target.lte(0)) {
+    throw new Error("Enter a target net profit percentage greater than 0.");
+  }
+  if (!input.sellPrice) {
+    throw new Error("Enter the expected selling price.");
+  }
+
   let low = D("0.01");
   let high = D(input.sellPrice);
+  if (high.lte(low)) {
+    throw new Error(
+      "The expected selling price must be greater than ₹0.01 for this calculation.",
+    );
+  }
+
   const meets = (buyPrice) =>
     D(
       calculateSale({ ...input, buyPrice: buyPrice.toFixed(4) }).result
         .returnPercentage,
-    ).gte(targetPercent);
-  for (let i = 0; i < 70; i += 1) {
+    ).gte(target);
+
+  if (!meets(low)) {
+    throw new Error(
+      "The target return cannot be achieved even at ₹0.01 per share. Try a lower target or a higher expected selling price.",
+    );
+  }
+  for (let i = 0; i < MAX_ITERATIONS; i += 1) {
     const mid = low.plus(high).div(2);
     if (meets(mid)) low = mid;
     else high = mid;
   }
+
   const price = low.toDecimalPlaces(2, Decimal.ROUND_FLOOR);
   return {
     price: price.toFixed(2),
@@ -224,15 +330,11 @@ export function solveMaximumBuyForReturn(input, targetPercent) {
 
 export function enrichSale(input) {
   const calculation = calculateSale(input);
-  const buyValue = D(calculation.values.buyValue);
   return {
     ...calculation,
     result: {
       ...calculation.result,
       breakEvenPrice: solvePrice(input, 0, "sell").price,
-      fivePercentTargetPrice: solvePrice(input, buyValue.times("0.05"), "sell")
-        .price,
-      maximumBuyPriceForFivePercent: solveMaximumBuyForReturn(input, 5).price,
     },
   };
 }

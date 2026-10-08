@@ -7,8 +7,12 @@ export const BROKERS = {
     effectiveFrom: "2026-03-01",
     source: source("Zerodha charges", "https://zerodha.com/charges/"),
     brokerage: { kind: "free" },
-    dp: { kind: "gendered", male: "13", female: "12.75", per: "isin-day" },
-    exchange: { NSE: "0.0000307", BSE: "0.0000375" },
+    dp: {
+      kind: "gendered",
+      male: "13",
+      female: "12.75",
+      per: "isin-day",
+    },
   },
   groww: {
     id: "groww",
@@ -23,6 +27,7 @@ export const BROKERS = {
       rate: "0.001",
       cap: "20",
       minimum: "5",
+      regulatoryCapRate: "0.025",
     },
     dp: {
       kind: "threshold-gendered",
@@ -33,8 +38,6 @@ export const BROKERS = {
       belowFemale: "3.25",
       per: "sell-transaction",
     },
-    exchange: { NSE: "0.0000297", BSE: "0.0000375" },
-    ipft: { NSE: "0.000001" },
   },
   upstox: {
     id: "upstox",
@@ -44,9 +47,8 @@ export const BROKERS = {
       "Upstox brokerage charges",
       "https://upstox.com/brokerage-charges/",
     ),
-    brokerage: { kind: "flat", amount: "20" },
+    brokerage: { kind: "flat", amount: "20", regulatoryCapRate: "0.025" },
     dp: { kind: "flat", amount: "20", per: "scrip-day" },
-    exchange: { NSE: "0.0000307", BSE: null },
   },
   angelone: {
     id: "angelone",
@@ -61,15 +63,14 @@ export const BROKERS = {
       rate: "0.001",
       cap: "20",
       minimum: "5",
+      regulatoryCapRate: "0.025",
     },
     dp: { kind: "flat", amount: "20", per: "isin-transaction" },
-    exchange: { NSE: "0.000030699", BSE: null },
   },
 };
 
 export function brokerById(id) {
   const broker = BROKERS[id];
-  if (!broker)
-    throw new Error("Selected broker has no configured delivery rule.");
+  if (!broker) throw new Error("The selected broker is not configured yet.");
   return broker;
 }
