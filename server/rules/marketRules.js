@@ -1,20 +1,57 @@
 export const BSE_CHARGE_CATEGORIES = {
   standard375: {
-    label: "₹375/crore category (A/B and specified non-exclusive scrips)",
+    label:
+      "₹375/crore: A/B and non-exclusive E/F/FC/G/GC/I/W/T scrips",
     rate: "0.0000375",
   },
   standard275: {
-    label: "₹275/crore category (M/MT/TS/MS and specified exclusive scrips)",
+    label:
+      "₹275/crore: M/MT/TS/MS/IF/IT/R and exclusive E/F/FC/G/GC/I/W/T scrips",
     rate: "0.0000275",
   },
   special10000: {
-    label: "₹10,000/crore category (X/XT/Z)",
-    rate: "0.0001",
-  },
-  special100000: {
-    label: "₹1,00,000/crore category (P/ZP/SS/ST and applicable odd-lot cases)",
+    label: "₹10,000/crore: X/XT/Z scrips",
     rate: "0.001",
   },
+  special100000: {
+    label:
+      "₹1,00,000/crore: P/ZP/SS/ST and applicable demat odd-lot trades",
+    rate: "0.01",
+  },
+};
+
+// BSE group classification is retained for audit/API compatibility. Groups
+// E/F/FC/G/GC/I/W/T use the ₹375 rate when non-exclusive and ₹275 when
+// exclusive; the user-facing selector therefore asks for the applicable rate
+// category rather than pretending it can determine exclusivity from the group.
+export const BSE_GROUP_MAPPINGS = {
+  A: "standard375",
+  B: "standard375",
+  E: { nonExclusive: "standard375", exclusive: "standard275" },
+  F: { nonExclusive: "standard375", exclusive: "standard275" },
+  FC: { nonExclusive: "standard375", exclusive: "standard275" },
+  G: { nonExclusive: "standard375", exclusive: "standard275" },
+  GC: { nonExclusive: "standard375", exclusive: "standard275" },
+  I: { nonExclusive: "standard375", exclusive: "standard275" },
+  W: { nonExclusive: "standard375", exclusive: "standard275" },
+  T: { nonExclusive: "standard375", exclusive: "standard275" },
+  M: "standard275",
+  MT: "standard275",
+  TS: "standard275",
+  MS: "standard275",
+  IF: "standard275",
+  IT: "standard275",
+  R: "standard275",
+  X: "special10000",
+  XT: "special10000",
+  Z: "special10000",
+  // XC/XD were merged into X; retain aliases for older inputs.
+  XC: "special10000",
+  XD: "special10000",
+  P: "special100000",
+  ZP: "special100000",
+  SS: "special100000",
+  ST: "special100000",
 };
 
 const source = (name, url) => ({
@@ -53,46 +90,20 @@ export const MARKET_RULES = [
       NSE: {
         transactionRate: "0.000030699",
         ipftRate: "0.000000001",
-        sourceUrl:
-          "https://nsearchives.nseindia.com/content/circulars/FA73061.pdf",
+        sourceUrl: "https://nsearchives.nseindia.com/content/circulars/FA73061.pdf",
       },
       BSE: {
-        groups: {
-          ...Object.fromEntries(
-            Object.entries(BSE_CHARGE_CATEGORIES).map(([key, item]) => [
-              key,
-              item.rate,
-            ]),
-          ),
-          // Backward-compatible aliases for direct API callers and existing data.
-          A: BSE_CHARGE_CATEGORIES.standard375.rate,
-          B: BSE_CHARGE_CATEGORIES.standard375.rate,
-          E: BSE_CHARGE_CATEGORIES.standard375.rate,
-          F: BSE_CHARGE_CATEGORIES.standard375.rate,
-          FC: BSE_CHARGE_CATEGORIES.standard375.rate,
-          G: BSE_CHARGE_CATEGORIES.standard375.rate,
-          GC: BSE_CHARGE_CATEGORIES.standard375.rate,
-          W: BSE_CHARGE_CATEGORIES.standard375.rate,
-          T: BSE_CHARGE_CATEGORIES.standard375.rate,
-          NS: BSE_CHARGE_CATEGORIES.standard375.rate,
-          NT: BSE_CHARGE_CATEGORIES.standard375.rate,
-          M: BSE_CHARGE_CATEGORIES.standard275.rate,
-          MT: BSE_CHARGE_CATEGORIES.standard275.rate,
-          TS: BSE_CHARGE_CATEGORIES.standard275.rate,
-          MS: BSE_CHARGE_CATEGORIES.standard275.rate,
-          IF: BSE_CHARGE_CATEGORIES.standard275.rate,
-          IT: BSE_CHARGE_CATEGORIES.standard275.rate,
-          X: BSE_CHARGE_CATEGORIES.special10000.rate,
-          XC: BSE_CHARGE_CATEGORIES.special10000.rate,
-          XD: BSE_CHARGE_CATEGORIES.special10000.rate,
-          XT: BSE_CHARGE_CATEGORIES.special10000.rate,
-          Z: BSE_CHARGE_CATEGORIES.special10000.rate,
-          ZP: BSE_CHARGE_CATEGORIES.special100000.rate,
-          P: BSE_CHARGE_CATEGORIES.special100000.rate,
-          SS: BSE_CHARGE_CATEGORIES.special100000.rate,
-          ST: BSE_CHARGE_CATEGORIES.special100000.rate,
-        },
-        sourceUrl: "https://zerodha.com/charges/",
+        categories: BSE_CHARGE_CATEGORIES,
+        groups: Object.fromEntries(
+          Object.entries(BSE_GROUP_MAPPINGS).flatMap(([group, category]) => {
+            if (typeof category === "string") {
+              return [[group, BSE_CHARGE_CATEGORIES[category].rate]];
+            }
+            return [];
+          }),
+        ),
+        sourceUrl:
+          "https://www.bseindia.com/markets/MarketInfo/DownloadAttach.aspx?attachedId=8a7fec3a-95bc-4bd2-82de-76e2a84e2915&id=20250429-51",
       },
     },
   },

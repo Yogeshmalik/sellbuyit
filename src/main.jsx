@@ -25,16 +25,16 @@ const initial = {
 const BSE_CATEGORIES = [
   [
     "standard375",
-    "₹375/crore category (A/B and specified non-exclusive scrips)",
+    "₹375/crore: A/B and non-exclusive E/F/FC/G/GC/I/W/T scrips",
   ],
   [
     "standard275",
-    "₹275/crore category (M/MT/TS/MS and specified exclusive scrips)",
+    "₹275/crore: M/MT/TS/MS/IF/IT/R and exclusive E/F/FC/G/GC/I/W/T scrips",
   ],
-  ["special10000", "₹10,000/crore category (X/XT/Z)"],
+  ["special10000", "₹10,000/crore: X/XT/Z scrips"],
   [
     "special100000",
-    "₹1,00,000/crore category (P/ZP/SS/ST and applicable odd-lot cases)",
+    "₹1,00,000/crore: P/ZP/SS/ST and applicable demat odd-lot trades",
   ],
 ];
 
@@ -49,19 +49,10 @@ const rate = (value) => {
   if (!value || value === "flat") return "Flat";
   const text = String(value);
   if (text.includes("₹") || text.includes("/")) return text;
-  const [whole, fraction = ""] = text.split(".");
-  const digits = `${whole}${fraction}`;
-  const scale = fraction.length - 2;
-  let percentage;
-  if (scale <= 0) percentage = `${digits}${"0".repeat(-scale)}`;
-  else {
-    const padded = digits.padStart(scale + 1, "0");
-    const split = padded.length - scale;
-    const integerPart = padded.slice(0, split).replace(/^0+(?=\d)/, "");
-    const decimalPart = padded.slice(split).replace(/0+$/, "");
-    percentage = decimalPart ? `${integerPart}.${decimalPart}` : integerPart;
-  }
-  return `${percentage}%`;
+  const percentage = Number(value) * 100;
+  if (!Number.isFinite(percentage)) return text;
+  const formatted = percentage.toFixed(6).replace(/\.?0+$/, "");
+  return `${formatted}%`;
 };
 
 function Tip({ children }) {
@@ -83,9 +74,7 @@ function Field({ label, children, hint, tip, error }) {
     isValidElement(children) && typeof children.type !== "symbol"
       ? cloneElement(children, {
           "aria-invalid": Boolean(error),
-          "aria-describedby": error
-            ? `${children.props.id || label}-error`
-            : undefined,
+          "aria-describedby": error ? `${children.props.id || label}-error` : undefined,
         })
       : children;
   return (
@@ -97,10 +86,7 @@ function Field({ label, children, hint, tip, error }) {
       {control}
       {hint && !error && <small>{hint}</small>}
       {error && (
-        <small
-          className="field-error"
-          id={`${children.props?.id || label}-error`}
-        >
+        <small className="field-error" id={`${children.props?.id || label}-error`}>
           {error}
         </small>
       )}
@@ -152,8 +138,8 @@ function Inputs({ values, onChange, targetMode, fieldErrors }) {
       {values.exchange === "BSE" && (
         <Field
           label="BSE fee category"
-          hint="Check the applicable category for your stock in your broker/BSE information."
-          tip="BSE transaction charges vary widely by the stock's applicable fee category. This selection is required so the calculator uses the correct BSE charge instead of assuming one rate for every stock."
+          hint="Check the stock's BSE group and whether it is exclusive/non-exclusive in your broker or BSE scrip master."
+          tip="BSE transaction charges depend on the stock's BSE group and, for E/F/FC/G/GC/I/W/T groups, whether the scrip is exclusive or non-exclusive. Choose the rate category that matches your stock. BSE's current master circular is the primary source for these categories and rates."
           error={error("bseGroup")}
         >
           <select {...input("bseGroup")}>
@@ -168,7 +154,7 @@ function Inputs({ values, onChange, targetMode, fieldErrors }) {
 
       <Field
         label="Holding type"
-        tip="For listed equity, 12 months is the usual long-term threshold. Choose the tax category that applies to the shares being sold; the calculator does not verify your purchase date."
+        tip="For listed equity, 12 months is the usual long-term threshold. For Section 112A's concessional rate, STT conditions can also apply. Choose the tax category that applies to the shares being sold; the calculator does not verify your purchase date or whether every tax condition is satisfied."
         error={error("holdingType")}
       >
         <select {...input("holdingType")}>
@@ -432,7 +418,9 @@ function Results({ data, kind }) {
         <>
           <div className="metric">
             <span>
-              {isTarget ? "Minimum selling price" : "Maximum buying price"}
+              {isTarget
+                ? "Minimum selling price"
+                : "Maximum buying price"}
             </span>
             <strong className="positive">{rupees(data.price)}</strong>
             <small>
@@ -460,8 +448,8 @@ function Results({ data, kind }) {
           <Tip>
             Charges are calculated using the configured broker, exchange,
             transaction date and tax assumptions. Rates are shown for audit
-            purposes; the final contract note can differ by paise-level
-            rounding, order splitting and account-specific charges.
+            purposes; the final contract note can differ by paise-level rounding,
+            order splitting and account-specific charges.
           </Tip>
         </caption>
         <thead>
@@ -482,10 +470,9 @@ function Results({ data, kind }) {
         <p>
           Profit before tax equals gross profit less configured charges. The tax
           estimate then applies the selected short/long-term treatment, the
-          available Section 112A allowance and the configured surcharge
-          estimate. STT is not deducted from the capital gain calculation. This
-          is a transaction-level estimate, not a complete annual income-tax
-          return.
+          available Section 112A allowance and the configured surcharge estimate.
+          STT is not deducted from the capital gain calculation. This is a
+          transaction-level estimate, not a complete annual income-tax return.
         </p>
       </details>
     </section>
@@ -518,47 +505,33 @@ function friendlyNetworkError(error) {
   if (error?.name === "TypeError") {
     return "The calculator service is unavailable right now. Please make sure the calculation server is running and try again.";
   }
-  return (
-    error?.message ||
-    "The calculation could not be completed. Please check the highlighted fields."
-  );
+  return error?.message || "The calculation could not be completed. Please check the highlighted fields.";
 }
 
 function validateClient(values, kind, targetType, targetValue) {
   const errors = {};
-  const positive = (value) =>
-    value !== "" && Number.isFinite(Number(value)) && Number(value) > 0;
+  const positive = (value) => value !== "" && Number.isFinite(Number(value)) && Number(value) > 0;
   const whole = (value) => /^\d+$/.test(String(value)) && Number(value) > 0;
 
-  if (!whole(values.buyOrders))
-    errors.buyOrders =
-      "Enter the number of separate buy orders as a positive whole number.";
-  if (!whole(values.sellOrders))
-    errors.sellOrders =
-      "Enter the number of separate sell orders as a positive whole number.";
-  if (!values.transactionDate)
-    errors.transactionDate = "Choose the transaction date.";
-  if (values.exchange === "BSE" && !values.bseGroup)
-    errors.bseGroup = "Choose the BSE fee category for your stock.";
+  if (!whole(values.buyOrders)) errors.buyOrders = "Enter the number of separate buy orders as a positive whole number.";
+  if (!whole(values.sellOrders)) errors.sellOrders = "Enter the number of separate sell orders as a positive whole number.";
+  if (!values.transactionDate) errors.transactionDate = "Choose the transaction date.";
+  if (values.exchange === "BSE" && !values.bseGroup) errors.bseGroup = "Choose the BSE fee category for your stock.";
   if (values.holdingType === "mixed") {
-    if (!whole(values.shortQuantity))
-      errors.shortQuantity = "Enter the number of short-term shares.";
-    if (!whole(values.longQuantity))
-      errors.longQuantity = "Enter the number of long-term shares.";
+    if (!whole(values.shortQuantity)) errors.shortQuantity = "Enter the number of short-term shares.";
+    if (!whole(values.longQuantity)) errors.longQuantity = "Enter the number of long-term shares.";
   } else if (!whole(values.quantity)) {
     errors.quantity = "Enter the number of shares as a positive whole number.";
   }
 
   if (kind !== "maximum" && !positive(values.buyPrice)) {
-    errors.buyPrice =
-      "Enter your average buy price as a number greater than zero.";
+    errors.buyPrice = "Enter your average buy price as a number greater than zero.";
   }
   if (kind === "sale" && !positive(values.sellPrice)) {
     errors.sellPrice = "Enter the selling price as a number greater than zero.";
   }
   if (kind === "maximum" && !positive(values.sellPrice)) {
-    errors.sellPrice =
-      "Enter the expected selling price as a number greater than zero.";
+    errors.sellPrice = "Enter the expected selling price as a number greater than zero.";
   }
 
   const ltcgUsed = Number(values.ltcgUsed);
@@ -568,24 +541,18 @@ function validateClient(values, kind, targetType, targetValue) {
     errors.ltcgUsed = "This amount cannot be more than ₹1,25,000.";
   }
   const annualIncome = Number(values.annualTaxableIncome);
-  if (
-    values.annualTaxableIncome !== "" &&
-    (!Number.isFinite(annualIncome) || annualIncome < 0)
-  ) {
-    errors.annualTaxableIncome =
-      "Enter a non-negative annual taxable income amount.";
+  if (values.annualTaxableIncome !== "" && (!Number.isFinite(annualIncome) || annualIncome < 0)) {
+    errors.annualTaxableIncome = "Enter a non-negative annual taxable income amount.";
   }
 
   if (kind === "target" || kind === "maximum") {
     if (!positive(targetValue)) {
-      errors.targetValue =
-        kind === "target"
-          ? "Enter the net-profit target you want to achieve."
-          : "Enter the net-profit percentage you require.";
+      errors.targetValue = kind === "target"
+        ? "Enter the net-profit target you want to achieve."
+        : "Enter the net-profit percentage you require.";
     }
     if (kind === "target" && !["percentage", "amount"].includes(targetType)) {
-      errors.targetType =
-        "Choose whether your target is a percentage or a rupee amount.";
+      errors.targetType = "Choose whether your target is a percentage or a rupee amount.";
     }
   }
   return errors;
@@ -677,9 +644,7 @@ function Calculator({ kind = "sale" }) {
       try {
         payload = await response.json();
       } catch {
-        throw new Error(
-          "The calculator service returned an unexpected response. Please try again.",
-        );
+        throw new Error("The calculator service returned an unexpected response. Please try again.");
       }
 
       if (!response.ok || !payload.success) {
@@ -722,11 +687,7 @@ function Calculator({ kind = "sale" }) {
                   value={targetType}
                   onChange={(event) => {
                     setTargetType(event.target.value);
-                    setFieldErrors((current) => ({
-                      ...current,
-                      targetType: "",
-                      targetValue: "",
-                    }));
+                    setFieldErrors((current) => ({ ...current, targetType: "", targetValue: "" }));
                     setError("");
                   }}
                 >
@@ -735,11 +696,7 @@ function Calculator({ kind = "sale" }) {
                 </select>
               </Field>
               <Field
-                label={
-                  targetType === "percentage"
-                    ? "Target net profit %"
-                    : "Target net profit amount"
-                }
+                label={targetType === "percentage" ? "Target net profit %" : "Target net profit amount"}
                 tip={
                   targetType === "percentage"
                     ? "Enter the net profit you want as a percentage of the amount invested. The result accounts for estimated charges and tax, so it is not the same as a simple price change percentage."
@@ -753,10 +710,7 @@ function Calculator({ kind = "sale" }) {
                   value={targetValue}
                   onChange={(event) => {
                     setTargetValue(event.target.value);
-                    setFieldErrors((current) => ({
-                      ...current,
-                      targetValue: "",
-                    }));
+                    setFieldErrors((current) => ({ ...current, targetValue: "" }));
                     setError("");
                     setData(null);
                   }}
@@ -777,10 +731,7 @@ function Calculator({ kind = "sale" }) {
                 value={targetValue}
                 onChange={(event) => {
                   setTargetValue(event.target.value);
-                  setFieldErrors((current) => ({
-                    ...current,
-                    targetValue: "",
-                  }));
+                  setFieldErrors((current) => ({ ...current, targetValue: "" }));
                   setError("");
                   setData(null);
                 }}
@@ -801,8 +752,7 @@ function Calculator({ kind = "sale" }) {
             </p>
           )}
           <button type="submit" disabled={loading}>
-            {loading ? "Calculating..." : "Calculate"}{" "}
-            {kind === "target"
+            {loading ? "Calculating..." : "Calculate"} {kind === "target"
               ? "target price"
               : kind === "maximum"
                 ? "maximum buy price"
