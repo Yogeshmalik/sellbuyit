@@ -1,0 +1,315 @@
+/* SellBuyIt responsive header/footer redesign */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: block;
+  width: 100%;
+  min-height: 76px;
+  height: auto;
+  padding: 0 clamp(16px, 4vw, 64px);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(11, 17, 24, 0.95);
+  backdrop-filter: blur(18px);
+}
+.topbar__inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(16px, 3vw, 40px);
+  width: 100%;
+  max-width: 1440px;
+  min-height: 76px;
+  margin: 0 auto;
+}
+.topbar__inner > .brand {
+  flex: 0 0 auto;
+  min-width: 0;
+  text-decoration: none;
+}
+.topbar .brand__mark {
+  width: 42px;
+  height: 42px;
+}
+.topbar .brand__name {
+  font-size: clamp(1.18rem, 1.7vw, 1.45rem);
+}
+.topbar .brand__tagline {
+  font-size: 0.49rem;
+  letter-spacing: 0.105em;
+}
+.topbar .topbar__nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: clamp(8px, 1.6vw, 24px);
+  min-width: 0;
+  margin-left: auto;
+}
+.topbar .topbar__nav a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 2px;
+  color: #aab6c2;
+  font-size: 0.88rem;
+  font-weight: 550;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 160ms ease;
+}
+.topbar .topbar__nav a::after {
+  position: absolute;
+  right: 0;
+  bottom: 2px;
+  left: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: #13d18a;
+  content: "";
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 160ms ease;
+}
+.topbar .topbar__nav a:hover,
+.topbar .topbar__nav a.active {
+  color: #f3f7f9;
+}
+.topbar .topbar__nav a.active::after {
+  transform: scaleX(1);
+}
+.mobile-nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #2b3946;
+  border-radius: 12px;
+  background: #121d27;
+  color: #eaf2f6;
+  cursor: pointer;
+}
+.mobile-nav-toggle:hover {
+  background: #1a2935;
+}
+.mobile-nav-toggle svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+/* --- FOOTER REDESIGN (FLEXBOX) --- */
+.site-footer {
+  display: block;
+  width: 100%;
+  margin-top: 28px;
+  padding: 0 clamp(16px, 4vw, 64px);
+  border-top: 1px solid rgba(148, 163, 184, 0.16);
+  background:
+    radial-gradient(
+      ellipse at 15% 0%,
+      rgba(19, 209, 138, 0.055),
+      transparent 42%
+    ),
+    #0b1118;
+}
+.site-footer__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 32px 0 24px;
+}
+.site-footer__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: nowrap; /* Ensures logo and credit stay on one line */
+}
+.brand--footer .brand__mark {
+  width: 44px;
+  height: 44px;
+}
+.brand--footer .brand__name {
+  font-size: 1.3rem;
+}
+.brand--footer .brand__tagline {
+  font-size: 0.46rem;
+}
+.site-footer__credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #b9c5ce;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: color 160ms ease;
+  white-space: nowrap;
+}
+.site-footer__credit:hover {
+  color: #13d18a;
+}
+.site-footer__credit svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+}
+.site-footer__credit svg .fill {
+  fill: currentColor;
+  stroke: none;
+}
+.site-footer__credit strong {
+  color: #edf4f7;
+  font-weight: 650;
+}
+.site-footer__bottom {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(148, 163, 184, 0.16);
+}
+.site-footer__disclaimer {
+  margin: 0;
+  max-width: 600px;
+  color: #8493a1;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+.site-footer__copyright {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* --- MEDIA QUERIES --- */
+@media (max-width: 900px) {
+  .topbar {
+    padding-inline: 20px;
+  }
+  .topbar__inner {
+    gap: 16px;
+  }
+  .topbar .brand__tagline {
+    display: none;
+  }
+  .topbar .topbar__nav {
+    gap: 16px;
+  }
+  .topbar .topbar__nav a {
+    font-size: 0.82rem;
+  }
+  .site-footer {
+    padding-inline: 20px;
+  }
+}
+
+@media (max-width: 720px) {
+  .topbar {
+    padding-inline: 16px;
+  }
+  .topbar__inner {
+    min-height: 64px;
+    gap: 12px;
+  }
+  .topbar .brand__mark {
+    width: 38px;
+    height: 38px;
+  }
+  .topbar .brand__copy {
+    display: none;
+  }
+  .mobile-nav-toggle {
+    display: inline-flex;
+    margin-left: auto;
+  }
+  .topbar .topbar__nav {
+    position: absolute;
+    top: calc(100% - 1px);
+    right: 0;
+    left: 0;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 4px;
+    margin: 0;
+    padding: 10px;
+    border: 1px solid #2b3946;
+    border-radius: 0 0 16px 16px;
+    background: #101922;
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.3);
+  }
+  .topbar .topbar__nav.is-open {
+    display: flex;
+  }
+  .topbar .topbar__nav a {
+    min-height: 46px;
+    padding: 0 12px;
+    border-radius: 9px;
+    font-size: 0.92rem;
+  }
+  .topbar .topbar__nav a:hover,
+  .topbar .topbar__nav a.active {
+    background: rgba(148, 163, 184, 0.08);
+  }
+  .topbar .topbar__nav a::after {
+    display: none;
+  }
+
+  /* Footer Mobile Adjustments */
+  .site-footer {
+    margin-top: 20px;
+    padding-inline: 16px;
+  }
+  .site-footer__inner {
+    padding: 24px 0 20px;
+    gap: 16px;
+  }
+  .site-footer__credit {
+    font-size: 0.75rem; /* Downsized slightly to ensure it fits perfectly with the logo */
+  }
+  .site-footer__credit svg {
+    width: 18px;
+    height: 18px;
+  }
+  .site-footer__bottom {
+    flex-direction: column; /* Stacks disclaimer and copyright cleanly */
+    gap: 12px;
+    padding-top: 16px;
+  }
+  .site-footer__copyright {
+    text-align: left;
+    white-space: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .topbar .topbar__nav a,
+  .topbar .topbar__nav a::after,
+  .site-footer__credit {
+    transition: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}

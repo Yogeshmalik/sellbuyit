@@ -1,7 +1,6 @@
 export const BSE_CHARGE_CATEGORIES = {
   standard375: {
-    label:
-      "₹375/crore: A/B and non-exclusive E/F/FC/G/GC/I/W/T scrips",
+    label: "₹375/crore: A/B and non-exclusive E/F/FC/G/GC/I/W/T scrips",
     rate: "0.0000375",
   },
   standard275: {
@@ -14,8 +13,7 @@ export const BSE_CHARGE_CATEGORIES = {
     rate: "0.001",
   },
   special100000: {
-    label:
-      "₹1,00,000/crore: P/ZP/SS/ST and applicable demat odd-lot trades",
+    label: "₹1,00,000/crore: P/ZP/SS/ST and applicable demat odd-lot trades",
     rate: "0.01",
   },
 };
@@ -90,7 +88,8 @@ export const MARKET_RULES = [
       NSE: {
         transactionRate: "0.000030699",
         ipftRate: "0.000000001",
-        sourceUrl: "https://nsearchives.nseindia.com/content/circulars/FA73061.pdf",
+        sourceUrl:
+          "https://nsearchives.nseindia.com/content/circulars/FA73061.pdf",
       },
       BSE: {
         categories: BSE_CHARGE_CATEGORIES,

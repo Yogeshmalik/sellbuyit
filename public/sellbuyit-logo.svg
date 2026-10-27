@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 330 72" role="img" aria-labelledby="title">
+  <title id="title">SellBuyIt — Trade smarter. Calculate clearer.</title>
+  <defs>
+    <linearGradient id="up" x1="10" y1="8" x2="43" y2="31" gradientUnits="userSpaceOnUse"><stop stop-color="#34F5A0"/><stop offset="1" stop-color="#00B879"/></linearGradient>
+    <linearGradient id="down" x1="54" y1="33" x2="19" y2="59" gradientUnits="userSpaceOnUse"><stop stop-color="#FF6875"/><stop offset="1" stop-color="#E92E4D"/></linearGradient>
+  </defs>
+  <g transform="translate(0 4) scale(.95)">
+    <path d="M9 28C9 16.8 17.4 9 29.2 9h10.2L35 4.9 40.4 1l13.1 8.8-9.1 12.6-4.1-5.6H29.2c-5.8 0-9.6 3.6-9.6 9.1v2.2H9Z" fill="url(#up)" transform="translate(0 3)"/>
+    <path d="M55 36c0 11.2-8.4 19-20.2 19H24.6l4.4 4.1-5.4 3.9-13.1-8.8 9.1-12.6 4.1 5.6h11.1c5.8 0 9.6-3.6 9.6-9.1v-2.2H55Z" fill="url(#down)"/>
+    <path d="M18 25.5h28v17H18z" fill="#0D1820" stroke="#DDE8EC" stroke-opacity=".16" stroke-width=".8"/>
+    <path d="M22 37h4v3h-4zM29 32h4v8h-4zM36 27h4v13h-4z" fill="#E9F8F2"/>
+  </g>
+  <text x="68" y="39" font-family="Inter,Arial,sans-serif" font-size="33" font-weight="800" letter-spacing="-1.2" fill="#F3F7F9">Sell<tspan fill="#13D18A">Buy</tspan><tspan>It</tspan></text>
+  <text x="69" y="58" font-family="Inter,Arial,sans-serif" font-size="8.5" font-weight="600" letter-spacing="1.45" fill="#9FB0BA">TRADE SMARTER. CALCULATE CLEARER.</text>
+</svg>

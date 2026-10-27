@@ -1,0 +1,255 @@
+/* Final responsive header/footer overrides: keep the header on one row. */
+.topbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.topbar > .brand {
+  flex: 0 0 auto;
+}
+
+.topbar nav {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  gap: clamp(8px, 1.7vw, 24px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.topbar nav::-webkit-scrollbar {
+  display: none;
+}
+
+.topbar nav a {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.site-footer__brand-row {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.site-footer__brand-row > .brand {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.site-footer__credit {
+  flex: 0 0 auto;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.site-footer__credit span {
+  display: inline;
+}
+
+@media (max-width: 620px) {
+  .topbar {
+    min-height: 58px;
+    height: auto;
+    padding: 8px 12px;
+    gap: 12px;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .topbar > .brand {
+    gap: 0;
+  }
+
+  .topbar .brand__mark {
+    width: 34px;
+    height: 34px;
+  }
+
+  .topbar .brand__copy {
+    display: none;
+  }
+
+  .topbar nav {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    justify-content: flex-start;
+    gap: 14px;
+    padding: 3px 0;
+  }
+
+  .topbar nav a {
+    font-size: 0.75rem;
+  }
+
+  .site-footer {
+    padding: 20px 16px 16px;
+  }
+
+  .site-footer__brand-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .brand--footer .brand__mark {
+    width: 36px;
+    height: 36px;
+  }
+
+  .brand--footer .brand__copy {
+    display: none;
+  }
+
+  .site-footer__credit {
+    gap: 7px;
+    font-size: 0.75rem;
+  }
+
+  .site-footer__credit svg {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 auto;
+  }
+
+  .site-footer__credit span {
+    display: inline;
+  }
+
+  .site-footer__disclaimer {
+    font-size: 0.76rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .topbar {
+    padding-inline: 9px;
+    gap: 9px;
+  }
+
+  .topbar .brand__mark {
+    width: 30px;
+    height: 30px;
+  }
+
+  .topbar nav {
+    gap: 12px;
+  }
+
+  .topbar nav a {
+    font-size: 0.72rem;
+  }
+
+  .site-footer__credit {
+    gap: 5px;
+    font-size: 0.7rem;
+  }
+}
+
+/* Footer layout: use flex rows for predictable left/right alignment. */
+.site-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+  min-width: 0;
+}
+
+.site-footer__brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  min-width: 0;
+}
+
+.site-footer__bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+  padding-top: 12px;
+  border-top: 1px solid #26313d;
+}
+
+.site-footer__copyright {
+  max-width: none;
+  padding-top: 0;
+  border-top: 0;
+  min-width: 0;
+}
+
+.site-footer__credit {
+  flex: 0 0 auto;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.site-footer__credit span {
+  display: inline;
+}
+
+@media (max-width: 620px) {
+  .site-footer__bottom-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .site-footer__copyright {
+    font-size: 0.68rem;
+    line-height: 1.4;
+  }
+
+  .site-footer__credit {
+    margin-left: auto;
+    gap: 6px;
+    font-size: 0.72rem;
+  }
+
+  .site-footer__credit span {
+    display: inline;
+  }
+}
+
+@media (max-width: 420px) {
+  .site-footer__bottom-row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .site-footer__copyright {
+    flex: 1 1 100%;
+  }
+
+  .site-footer__credit {
+    /* align-self: flex-end; */
+    margin-left: auto;
+  }
+}

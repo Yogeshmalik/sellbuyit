@@ -1,0 +1,74 @@
+/* Calculation-aware trade insights (no external AI service or model download). */
+.trade-insights {
+  margin: 4px 0 24px;
+  padding: 18px;
+  border: 1px solid #2b4654;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #12212a, #111820 72%);
+}
+.insights-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.insights-heading h3 {
+  margin: 6px 0 0;
+  font-size: 1rem;
+  line-height: 1.45;
+}
+.eyebrow {
+  color: #65c8ef;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+.insights-mark {
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  height: 32px;
+  border: 1px solid #315465;
+  border-radius: 50%;
+  color: #65c8ef;
+  font-size: 1.1rem;
+}
+.insights-intro {
+  margin: 9px 0 14px;
+  color: #9ca3af;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+.insights-details {
+  border-top: 1px solid #263b46;
+  padding-top: 12px;
+  color: #d6dbe2;
+  font-size: 0.83rem;
+}
+.insights-details summary {
+  width: fit-content;
+  color: #8ddcf7;
+  font-weight: 700;
+  cursor: pointer;
+}
+.insights-details ul {
+  display: grid;
+  gap: 10px;
+  margin: 13px 0 0;
+  padding-left: 20px;
+  line-height: 1.55;
+}
+.insights-details li::marker {
+  color: #65c8ef;
+}
+@media (max-width: 460px) {
+  .trade-insights {
+    padding: 14px;
+  }
+}
+
+.trade-insights-loading,
+.page-loading {
+  color: #9ca3af;
+  padding: 18px;
+}

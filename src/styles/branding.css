@@ -1,0 +1,152 @@
+/* SellBuyIt responsive brand system */
+.topbar {
+  gap: 24px;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  min-width: 0;
+  letter-spacing: 0;
+}
+.brand__mark {
+  display: block;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+.brand__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.brand__name {
+  color: #f3f7f9;
+  font-size: 1.45rem;
+  font-weight: 850;
+  letter-spacing: -0.055em;
+  line-height: 1;
+  white-space: nowrap;
+}
+.brand__name > span {
+  color: #13d18a;
+}
+.brand__tagline {
+  color: #9fb0ba;
+  font-size: 0.53rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.topbar nav {
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.site-footer {
+  display: grid;
+  gap: 14px;
+  padding: 26px 5vw 18px;
+  border-top: 1px solid #26313d;
+  background: #0d141b;
+  color: #9ca3af;
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+.site-footer__brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.brand--footer .brand__mark {
+  width: 46px;
+  height: 46px;
+}
+.brand--footer .brand__name {
+  font-size: 1.28rem;
+}
+.brand--footer .brand__tagline {
+  font-size: 0.48rem;
+}
+.site-footer__credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #b7c2cb;
+  text-decoration: none;
+}
+.site-footer__credit:hover {
+  color: #13d18a;
+}
+.site-footer__credit svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
+.site-footer__credit svg .fill {
+  fill: currentColor;
+  stroke: none;
+}
+.site-footer__disclaimer,
+.site-footer__copyright {
+  max-width: 900px;
+  margin: 0;
+}
+.site-footer__copyright {
+  padding-top: 12px;
+  border-top: 1px solid #26313d;
+  font-size: 0.74rem;
+}
+@media (max-width: 620px) {
+  .topbar {
+    min-height: 60px;
+    padding: 0 4vw;
+    gap: 12px;
+  }
+  .brand {
+    gap: 0;
+  }
+  .brand__mark {
+    width: 38px;
+    height: 38px;
+  }
+  .brand__copy {
+    display: none;
+  }
+  .topbar nav {
+    gap: 12px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .topbar nav a {
+    font-size: 0.76rem;
+  }
+  .site-footer {
+    padding: 22px 4vw 16px;
+  }
+  .site-footer__brand-row {
+    align-items: flex-start;
+  }
+  .brand--footer .brand__mark {
+    width: 42px;
+    height: 42px;
+  }
+  .brand--footer .brand__copy {
+    display: none;
+  }
+  .site-footer__credit span {
+    display: none;
+  }
+  .site-footer__disclaimer {
+    font-size: 0.76rem;
+  }
+}

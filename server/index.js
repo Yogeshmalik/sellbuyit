@@ -24,8 +24,12 @@ const USER_FACING_ERROR_PATTERNS = [
 ];
 
 const userFacingMessage = (error) => {
-  const message = typeof error?.message === "string" ? error.message.trim() : "";
-  if (message && USER_FACING_ERROR_PATTERNS.some((pattern) => pattern.test(message))) {
+  const message =
+    typeof error?.message === "string" ? error.message.trim() : "";
+  if (
+    message &&
+    USER_FACING_ERROR_PATTERNS.some((pattern) => pattern.test(message))
+  ) {
     return message;
   }
   return "We couldn't complete the calculation right now. Please check your entries and try again.";
@@ -47,16 +51,14 @@ const respond = (res, fn) => {
 const parse = (body, res) => {
   const parsed = saleSchema.safeParse(body);
   if (!parsed.success) {
-    res
-      .status(400)
-      .json({
-        success: false,
-        error: {
-          code: "INVALID_REQUEST",
-          message: parsed.error.issues[0].message,
-          fields: parsed.error.flatten().fieldErrors,
-        },
-      });
+    res.status(400).json({
+      success: false,
+      error: {
+        code: "INVALID_REQUEST",
+        message: parsed.error.issues[0].message,
+        fields: parsed.error.flatten().fieldErrors,
+      },
+    });
     return null;
   }
   return parsed.data;
@@ -91,12 +93,10 @@ app.post("/api/calculations/maximum-buy-price", (req, res) => {
   );
 });
 app.use((_req, res) =>
-  res
-    .status(404)
-    .json({
-      success: false,
-      error: { code: "NOT_FOUND", message: "Endpoint not found." },
-    }),
+  res.status(404).json({
+    success: false,
+    error: { code: "NOT_FOUND", message: "Endpoint not found." },
+  }),
 );
 app.listen(process.env.PORT || 3001, () =>
   console.log("Calculation API listening on 3001"),
